@@ -1,11 +1,12 @@
 import os
 from dotenv import load_dotenv
 
-BASEDIR = os.path.abspath(os.path.dirname(__name__))
-load_dotenv(os.path.join(BASEDIR, '.env'))
+BASEDIR = os.path.abspath(os.path.dirname(f"../{__name__}"))
+load_dotenv(os.path.join(BASEDIR, 'conf/.env'))
+
 
 BOT_TOKEN = os.getenv('BOTTOKEN')
-print(BOT_TOKEN)
+BOT_ID = "@test_develop_bot"
 
 
 
