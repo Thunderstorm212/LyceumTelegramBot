@@ -10,6 +10,7 @@ btn_dict = {
   "btn_marks_status": "Мої оцінки",
   "btn_visiting_status": "Мої відвідування",
 
+  "btn_number": "Телефон",
 
   "btn_back": "⬅️ Назад",
 
