@@ -6,6 +6,7 @@ import conf
 from assets.ui import ui_text
 from db import menager, login
 import db
+import threading
 
 
 class ChatData:
@@ -31,7 +32,7 @@ class ChatData:
     def add_obj(self, input_data: dict):
         pass
         file_data = dict(json.load(self.chat_data_file))
-        print(file_data)
+        print("file data", file_data)
         for key, val in input_data.items():
             file_data[key] = val
 
@@ -50,8 +51,6 @@ class ChatData:
             return file_data
         except (KeyError, TypeError):
             return None
-
-    # def keys(self):
 
 
 
@@ -93,6 +92,7 @@ class Bot(Buttons):
     async def star_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         contact_user_id = update.message.chat_id
+        user_name = update.message.from_user
 
         if login.verification_user_with_id(contact_user_id):
             markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
@@ -134,6 +134,9 @@ class Bot(Buttons):
     @staticmethod
     async def all_responses(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = update.message.text
+        user = update.message.from_user
+        user_name = user.first_name
+        user_id = user.id
 
         if message == ui_text["btn"].btn_back:
             markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
@@ -161,20 +164,33 @@ class Bot(Buttons):
 
         if message == ui_text["btn"].btn_intheway:
             markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
-            db.status.in_the_way(update.message.chat_id)
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=ui_text["answer"].answer_info,
-                reply_markup=markup
-            )
+
+            if db.status.in_the_way(update.message.chat_id, user_name):
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=ui_text["answer"].answer_info,
+                    reply_markup=markup
+                )
+            else:
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=ui_text["answer"].answer_status_updated,
+                    reply_markup=markup
+                )
 
         if message == ui_text["btn"].btn_arrived:
             markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
-            db.status.present(update.message.chat_id)
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=ui_text["answer"].answer_info,
-                reply_markup=markup
-            )
+            if db.status.present(update.message.chat_id, user_name):
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=ui_text["answer"].answer_info,
+                    reply_markup=markup
+                )
+            else:
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=ui_text["answer"].answer_status_updated,
+                    reply_markup=markup
+                )
 
 

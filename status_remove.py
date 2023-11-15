@@ -1,40 +1,30 @@
-from datetime import datetime
-import time
+import datetime
 import db
-import calendar
+import time
 
 
-def update_data():
-    now_data = datetime.now().strftime('%Y/%m/%d %H:%M')
-    today_data = datetime.today().strftime('%Y/%m/%d') + " 23:59"
-    if now_data == today_data:
-        print(today_data)
+def update_date():
+    next_date = datetime.datetime.today() + datetime.timedelta(days=1)
+    next_date = next_date.strftime('%Y/%m/%d')
+    while True:
+        today_date = datetime.datetime.now().strftime('%Y/%m/%d')
+        print("Date is Update")
+        if today_date == next_date:
+            cursor = db.users_collection.find({})
+            for document in cursor:
+                status = document["status"]
+                attendance = status["attendance"]
 
-        # for i in  :
-        # # db.users_collection.find_one()
-    # print(db..find({}))
-    cursor = db.users_collection.find({})
-    for document in cursor:
-        print(document)
-        status = document["status"]
-        attendance = status["attendance"]
+                if attendance > 0:
+                    info = document["info"]
+                    person = info["full_name"]
 
-        if attendance > 0:
-            update = {"$set": {f"status.attendance": 0}}
-            db.users_collection.update_one(document, update)
-        else:
-            pass
-    print("data=", now_data)
-    time.sleep(60)
+                    update = {"$set": {f"status.attendance": 0}}
+                    db.users_collection.update_one(document, update)
+                    print(f"Log: update {person} status attendance; Set: 0;")
+                else:
+                    pass
+            time.sleep(28800)
+            update_date()
+        time.sleep(7200)
 
-
-# update_data()
-
-
-def week_number_in_month():
-    # calendar.setfirstweekday(calendar.SUNDAY)
-    yy = int(datetime.now().strftime('%Y'))
-    mm = int(datetime.now().strftime('%m'))
-    dd = int(datetime.now().strftime('%d'))
-    print(dd)
-week_number_in_month()
