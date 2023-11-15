@@ -8,8 +8,8 @@ cluster = "cluster0"
 uri = f"mongodb+srv://{DB_USER}:{DB_TOKEN}@{cluster}.gbcrwrb.mongodb.net/?retryWrites=true&w=majority"
 # test_client = MongoClient('mongodb://localhost:27017/')
 client = MongoClient(uri)
-customer_db = client["test"]
-users_collection = customer_db["testCollection"]
+customer_db = client["customer"]
+users_collection = customer_db["users"]
 
 csvfile = open('lib/Users.csv', 'r', newline='')
 csvreader = csv.reader(csvfile)
