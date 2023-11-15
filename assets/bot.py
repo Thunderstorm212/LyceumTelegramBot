@@ -193,4 +193,7 @@ class Bot(Buttons):
                     reply_markup=markup
                 )
 
+        if message == ui_text["btn"].btn_marks_status:
+            markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
+
 
