@@ -38,3 +38,11 @@ def in_the_way(telegram_id, telegram_user):
     else:
         print(f"User: {telegram_user} not update attendance status")
         return False
+
+
+def my_marks(telegram_id, telegram_user):
+    pass
+
+
+def visiting(telegram_id, telegram_user):
+    pass
