@@ -1,16 +1,14 @@
 import datetime
-import time
 
 import telegram
-from telegram import Update, Contact
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler, ConversationHandler
-import json
-import conf
+from telegram import Update
+from telegram.ext import ContextTypes, ConversationHandler
 from assets.ui import ui_text
-from db import menager, login
+from db import login
 import db
 import threading
 from queue import Queue
+from assets.chats_data import ChatData
 
 
 class Buttons:
@@ -43,6 +41,14 @@ class Buttons:
         [
             telegram.KeyboardButton(ui_text["btn"].btn_marks_status),
             telegram.KeyboardButton(ui_text["btn"].btn_visiting_status),
+            telegram.KeyboardButton(ui_text["btn"].btn_back),
+        ]
+    ]
+
+    menuBTN = [
+        [
+            telegram.KeyboardButton(ui_text["btn"].btn_journal_account),
+            telegram.KeyboardButton(ui_text["btn"].btn_settings),
             telegram.KeyboardButton(ui_text["btn"].btn_back),
         ]
     ]
@@ -81,6 +87,14 @@ class Bot(Buttons):
                 reply_markup=markup,
                 parse_mode="MarkdownV2",
             )
+            chat_data_query = {
+                str(contact_user_id): {
+                    "info": {}
+                }
+            }
+            if ChatData().get_by_id(str(contact_user_id)) is None:
+                ChatData().add_obj(chat_data_query)
+
         else:
             markup = telegram.ReplyKeyboardMarkup(Buttons.loginBTN, resize_keyboard=True)
             await context.bot.send_message(chat_id=update.effective_chat.id, text=ui_text["answer"].answer_start,
@@ -140,7 +154,7 @@ class Bot(Buttons):
         return ConversationHandler.END
 
     @staticmethod
-    async def cancel(update, context):
+    async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         markup = telegram.ReplyKeyboardMarkup(Buttons.loginBTN, resize_keyboard=True)
 
         await context.bot.send_message(
@@ -151,8 +165,15 @@ class Bot(Buttons):
         )
         return ConversationHandler.END
 
+    @staticmethod
+    async def btn_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        markup = telegram.ReplyKeyboardMarkup(Buttons.menuBTN, resize_keyboard=True)
 
-
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=ui_text["answer"].answer_wait,
+            reply_markup=markup,
+        )
 
     @staticmethod
     async def btn_back(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -162,9 +183,6 @@ class Bot(Buttons):
             text=ui_text["answer"].answer_wait,
             reply_markup=markup
         )
-
-
-
 
     @staticmethod
     async def btn_visiting(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -231,19 +249,72 @@ class Bot(Buttons):
 
     @staticmethod
     async def btn_marks_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        result_queue_journal = Queue()
+        thread_journal = threading.Thread(target=login.verification_user_journal,
+                                          args=[context.user_data['id'], result_queue_journal])
+        thread_journal.start()
+        thread_journal.join()
+        journal_user = result_queue_journal.get()
+        print("journal_user", journal_user[0])
+        if journal_user[0] is None:
+            markup_remove = telegram.ReplyKeyboardRemove()
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["answer"].answer_journal_not_registered,
+                parse_mode="MarkdownV2",
+                reply_markup=markup_remove
+            )
+
+        elif type(journal_user[0]) is str:
+            context.user_data['journal_login'] = journal_user[0]
+            context.user_data['journal_password'] = journal_user[1]
+
+            markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["answer"].answer_wait,
+                reply_markup=markup
+            )
+        else:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["error"].error_unknown,
+            )
+
         user = update.message.from_user
         user_name = user.first_name
         markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
-        thread_my_mark = threading.Thread(target=db.status.my_marks, args=[update.message.chat_id, user_name])
+        result_queue = Queue()
+        thread_my_mark = threading.Thread(target=db.status.my_marks, args=[
+            update.message.chat_id,
+            context.user_data['journal_login'],
+            context.user_data['journal_password'],
+            result_queue
+        ])
+
         thread_my_mark.start()
-        status = thread_my_mark.join()
-        if status is True:
+        thread_my_mark.join()
+        result = result_queue.get()
+        print(result)
+        if type(result) is str:
+
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=result,
+                reply_markup=markup,
+                parse_mode="MarkdownV2",
+            )
+        elif result is None:
             pass
-        elif status is None:
-            pass
-            # await Bot.journal_registration()
+            # await context.bot.send_message(
+            #     chat_id=update.effective_chat.id,
+            #     text="Зачекайте виконується оновлення"
+            # )
         else:
             pass
+        status = thread_my_mark.join()
+
+
             # await context.bot.send_message(
             #     chat_id=update.effective_chat.id,
             #     text=ui_text["answer"].answer_wait,
@@ -284,30 +355,115 @@ class Bot(Buttons):
                 reply_markup=markup,
                 parse_mode="MarkdownV2"
             )
+        elif int(result[1]) == 100:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["answer"].answer_visiting_no_gaps,
+                reply_markup=markup,
+                parse_mode="MarkdownV2"
+            )
+
         else:
-            pass
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["answer"].error_unknown,
+                reply_markup=markup,
+                parse_mode="MarkdownV2"
+            )
 
-        # if message == ui_text["btn"].btn_login:
-        #     await context.bot.send_message(
-        #         chat_id=update.effective_chat.id,
-        #         text=ui_text["answer"].answer_login,
-        #         parse_mode="MarkdownV2",
-        #     )
-        #
-        #
-        #
-        #     await context.bot.send_message(
-        #         chat_id=update.effective_chat.id,
-        #         text=ui_text["answer"].answer_password,
-        #         parse_mode="MarkdownV2",
-        #     )
+    @staticmethod
+    async def btn_journal_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        result_queue = Queue()
+        thread_journal = threading.Thread(target=login.verification_user_journal, args=[context.user_data['id'], result_queue])
+        thread_journal.start()
+        thread_journal.join()
 
-# TODO
-#     @staticmethod
-#     async def journal_registration(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#         await context.bot.send_message(
-#             chat_id=update.effective_chat.id,
-#             text=ui_text["answer"].answer_wait,
-#         )
+        journal_user = result_queue.get()
+
+        if journal_user[0] is None:
+            markup_remove = telegram.ReplyKeyboardRemove()
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["answer"].answer_journal_not_registered,
+                parse_mode="MarkdownV2",
+                reply_markup=markup_remove
+            )
+
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["answer"].answer_journal_login,
+                parse_mode="MarkdownV2"
+            )
+            return 1
+        elif type(journal_user[0]) is str:
+            context.user_data['journal_login'] = journal_user[0] #gaydaychuk_vladislav2
+            context.user_data['journal_password'] = journal_user[1] #676526dd
+
+            markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["answer"].answer_wait,
+                reply_markup=markup
+            )
+            return ConversationHandler.END
+        else:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["error"].error_unknown,
+            )
+            return ConversationHandler.END
+
+    @staticmethod
+    async def journal_login(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        journal_login = update.message.text
+        context.user_data['journal_login'] = journal_login
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=ui_text["answer"].answer_journal_password,
+            parse_mode="MarkdownV2"
+        )
+        return 2
+
+    @staticmethod
+    async def journal_password(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        journal_password = update.message.text
+        context.user_data['journal_password'] = journal_password
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=ui_text["answer"].answer_wait_parse,
+            parse_mode="MarkdownV2"
+        )
+        result_queue = Queue()
+        thread_journal = threading.Thread(target=login.login_in_journal,
+                                          args=[
+                                              context.user_data['id'],
+                                              context.user_data['journal_login'],
+                                              context.user_data['journal_password'],
+                                              result_queue
+                                          ])
+        thread_journal.start()
+        thread_journal.join()
+        journal_result = result_queue.get()
+        if journal_result:
+            markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["answer"].answer_journal_registration_ok,
+                reply_markup=markup,
+                parse_mode="MarkdownV2"
+            )
+        else:
+            markup = telegram.ReplyKeyboardMarkup(Buttons.menuBTN, resize_keyboard=True)
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=ui_text["error"].error_journal_registration,
+                reply_markup=markup,
+                parse_mode="MarkdownV2",
+
+            )
+        return ConversationHandler.END
+
+
+
 
 

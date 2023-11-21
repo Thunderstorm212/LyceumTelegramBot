@@ -69,6 +69,7 @@ class User:
              "marks": {
                 "login": None,
                  "password": None,
+                 "last_update": None,
                  "marks": [],
              }
 

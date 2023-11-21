@@ -1,5 +1,4 @@
 from assets.build import build
-from assets.status import Statuses
 import os
 import sys
 import threading
@@ -14,8 +13,8 @@ if __name__ == '__main__':
             status_remove_thread.setDaemon(True)
 
             if status_remove_thread.start():
-                Statuses(2)
+                print("run status_remove_thread")
             if build():
-                Statuses(1)
+                print("run build")
         except Exception as e:
             print(e)

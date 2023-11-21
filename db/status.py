@@ -1,9 +1,8 @@
 import db
 from datetime import datetime
-# from assets import
 import threading
 from datetime import datetime, timedelta
-
+from assets import parser
 
 
 def present(telegram_id, telegram_user):
@@ -48,21 +47,29 @@ def in_the_way(telegram_id, telegram_user):
         return False
 
 
-def nz_registration(telegram_id):
-    pass
-
-
-def my_marks(telegram_id, telegram_user):
+def my_marks(telegram_id, login, password, result_queue):
     query = {"info.telegram_id": telegram_id}
     user = db.users_collection.find_one(query)
     if user is not None:
-        marks = user['marks']
-        marks_login = marks["login"]
-        print(marks_login)
-        if marks_login is not None:
-            print(marks_login, "Not None")
+        marks_obj = user['marks']
+        marks_list = marks_obj["marks"]
+        last_update = marks_obj["last_update"]
+        current_date = datetime.today().strftime('%Y%m%d')
+        days_difference = (datetime.now() - datetime.strptime(last_update, "%Y/%m/%d")).days
+        if days_difference >= 3:
+            # threading.Thread(target=result_queue.put("Update"))
+            result_queue.put(None)
         else:
-            return None
+            text = f"📚️Оцінки: \n" \
+                   f"⏰ {last_update}\n"
+            for subject_data in marks_list:
+                subject = subject_data[0].replace('ІК "Природничі науки. ', "")
+                subject = subject.replace('"', "")
+                marks = subject_data[1].replace('(', "")
+                marks = marks.replace(')', "")
+                marks = marks.replace('.', "")
+                text = text + f"*{subject}*\:\n_{marks}_\n\n"
+            result_queue.put(text)
 
 
 def visiting(telegram_id, telegram_user, result_queue):
@@ -75,7 +82,6 @@ def visiting(telegram_id, telegram_user, result_queue):
         if len(absence) > 0:
             start_date = datetime(2023, 9, 4) #start date
             end_date = datetime.today()
-
             date_list = [
                 start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)
             ]
@@ -87,11 +93,8 @@ def visiting(telegram_id, telegram_user, result_queue):
             ]
 
             list_visiting = list(set(date_list) - set(absence))
-
             percentage_visiting = (len(list_visiting) / len(date_list)) * 100 if len(date_list) != 0 else 0
-
             result_queue.put((absence, round(percentage_visiting, 2)))
-
         else:
             result_queue.put((None, 100))
 
