@@ -1,15 +1,14 @@
 from pymongo.mongo_client import MongoClient
 from conf import DB_TOKEN, DB_USER
 import csv
-import json
 
 
 cluster = "cluster0"
 uri = f"mongodb+srv://{DB_USER}:{DB_TOKEN}@{cluster}.gbcrwrb.mongodb.net/?retryWrites=true&w=majority"
-# test_client = MongoClient('mongodb://localhost:27017/')
 client = MongoClient(uri)
 customer_db = client["customer"]
 users_collection = customer_db["users"]
+# users_collection = customer_db["test"]
 
 csvfile = open('lib/Users.csv', 'r', newline='')
 csvreader = csv.reader(csvfile)
@@ -49,12 +48,9 @@ for group in group_data:
 group_data = group_result
 
 
-
-# marks = None
-
-
 class User:
     users = list()
+
     def build_user(self, number, full_name, absence, login, email, group, attendance=0, telegram_id=None):
         user = {
              "info": {
@@ -71,7 +67,10 @@ class User:
                  "absence": absence,
              },
              "marks": {
-
+                "login": None,
+                 "password": None,
+                 "last_update": None,
+                 "marks": [],
              }
 
 
@@ -93,12 +92,8 @@ for i in range(len(logins_data)):
         group=group_data[i],
         absence=[]
     )
-# users_result = dict()
-#
-# for user_dict in user.get_all_users():
-#     users_result.update(user_dict)
 
-# print(users_result)
 
 # users_collection.insert_many(user.get_all_users())
-print(customer_db.command('ping'))
+
+print("Db status is", customer_db.command('ping'))
