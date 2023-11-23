@@ -1,8 +1,6 @@
 import db
-from datetime import datetime
-import threading
 from datetime import datetime, timedelta
-from assets import parser
+import conf
 
 
 def present(telegram_id, telegram_user):
@@ -19,13 +17,14 @@ def present(telegram_id, telegram_user):
                 print(f"User: {telegram_user} update attendance status; Set: ✅;")
                 return True
             else:
+                print(f"User: {telegram_user} not update attendance status")
                 return "Holiday"
 
         else:
+            print(f"User: {telegram_user} not update attendance status")
             return False
-
     else:
-        print(f"User: {telegram_user} not update attendance status")
+
         return False
 
 
@@ -36,28 +35,26 @@ def in_the_way(telegram_id, telegram_user):
     if user is not None:
         user_status_data = user['status']
         user_attendance = user_status_data["attendance"]
-        if user_attendance <= 1:
+        if user_attendance < 1 and user_attendance != 1:
             db.users_collection.update_one(user, update)
             print(f"User: {telegram_user} update attendance status; Set: 🚗;")
             return True
         else:
+            print(f"User: {telegram_user} not update attendance status")
             return False
     else:
-        print(f"User: {telegram_user} not update attendance status")
         return False
 
 
-def my_marks(telegram_id, login, password, result_queue):
+def my_marks(telegram_id, result_queue):
     query = {"info.telegram_id": telegram_id}
     user = db.users_collection.find_one(query)
     if user is not None:
         marks_obj = user['marks']
         marks_list = marks_obj["marks"]
         last_update = marks_obj["last_update"]
-        current_date = datetime.today().strftime('%Y%m%d')
         days_difference = (datetime.now() - datetime.strptime(last_update, "%Y/%m/%d")).days
         if days_difference >= 3:
-            # threading.Thread(target=result_queue.put("Update"))
             result_queue.put(None)
         else:
             text = f"📚️Оцінки: \n" \
@@ -80,7 +77,7 @@ def visiting(telegram_id, telegram_user, result_queue):
         status = user['status']
         absence = status["absence"]
         if len(absence) > 0:
-            start_date = datetime(2023, 9, 4) #start date
+            start_date = conf.start_date_status  # start date
             end_date = datetime.today()
             date_list = [
                 start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)
@@ -94,9 +91,11 @@ def visiting(telegram_id, telegram_user, result_queue):
 
             list_visiting = list(set(date_list) - set(absence))
             percentage_visiting = (len(list_visiting) / len(date_list)) * 100 if len(date_list) != 0 else 0
+
+            print(f"User: {telegram_user} get visiting status")
             result_queue.put((absence, round(percentage_visiting, 2)))
         else:
+            print(f"User: {telegram_user} get visiting status. Get: 100% visiting")
             result_queue.put((None, 100))
-
     else:
         result_queue.put(False)

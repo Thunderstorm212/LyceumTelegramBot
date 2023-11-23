@@ -1,3 +1,0 @@
-# Lyceum Telegram Bot
-
-

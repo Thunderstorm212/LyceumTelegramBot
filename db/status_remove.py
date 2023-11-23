@@ -34,4 +34,3 @@ def update_date():
             time.sleep(28800)
             update_date()
         time.sleep(7200)
-

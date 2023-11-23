@@ -1,8 +1,7 @@
 from assets.build import build
-import os
 import sys
 import threading
-import status_remove
+from db import status_remove
 
 if __name__ == '__main__':
 
@@ -12,9 +11,10 @@ if __name__ == '__main__':
             build_thread = threading.Thread(target=build)
             status_remove_thread.setDaemon(True)
 
-            if status_remove_thread.start():
-                print("run status_remove_thread")
-            if build():
-                print("run build")
+            print("Run Thread status remover")
+            status_remove_thread.start()
+
+            print("Run build telegram bot")
+            build()
         except Exception as e:
             print(e)

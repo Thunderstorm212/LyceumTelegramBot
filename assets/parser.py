@@ -1,12 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 from time import sleep
 from datetime import datetime
 import db
 from bs4 import BeautifulSoup
 import pandas as pd
-from threading import Thread
 import csv
 import os
 
@@ -19,27 +17,32 @@ class Elements:
         "date_from": "classselectform-date_from",
         "date_to": "classselectform-date_to"
     }
-    _class = {
+    class_name = {
         "btn_submit": "form-submit-btn"
     }
 
 
+driver = None
+
+
 def open_driver(login, password, user=None):
+
+    global driver
 
     def login_client():
         driver.get("https://nz.ua")
         input_login = driver.find_element(by=By.ID, value=Elements.id["input_login"])
         input_password = driver.find_element(by=By.ID, value=Elements.id["input_password"])
-        submit_btn = driver.find_element(by=By.CLASS_NAME, value=Elements._class["btn_submit"])
+        submit_btn = driver.find_element(by=By.CLASS_NAME, value=Elements.class_name["btn_submit"])
         input_login.send_keys(login)
         input_password.send_keys(password)
 
         submit_btn.click()
         sleep(1)
         try:
-            alart_message = driver.find_element(by=By.CLASS_NAME, value="alert-danger")
+            driver.find_element(by=By.CLASS_NAME, value="alert-danger")
             return False
-        except:
+        except Exception as ex:
             return True
 
     def get_marks():
@@ -59,8 +62,8 @@ def open_driver(login, password, user=None):
             except Exception as ex:
                 print(ex)
                 continue
-        HTML_data = soup.find_all("table")[0].find_all("tr")[1:]
-        for element in HTML_data:
+        html_data = soup.find_all("table")[0].find_all("tr")[1:]
+        for element in html_data:
             sub_data = []
             for sub_element in element:
                 try:
@@ -73,17 +76,15 @@ def open_driver(login, password, user=None):
                     continue
             data.append(sub_data)
 
-        dataFrame = pd.DataFrame(data=data, columns=list_header)
+        data_frame = pd.DataFrame(data=data, columns=list_header)
         sleep(1)
-        dataFrame.to_csv(f'lib/marks/Marks_{login}.csv')
+        data_frame.to_csv(f'lib/marks/Marks_{login}.csv')
 
     try:
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
-
-        s = Service(executable_path="../lib/chrome_service/chromedriver")
 
         driver = webdriver.Chrome(options=options)
 
@@ -101,29 +102,29 @@ def open_driver(login, password, user=None):
         if login_client() is False:
             return False
         get_marks()
-        sleep(1)
+
         csv_file = f'lib/marks/Marks_{login}.csv'
         marks_list = parse_csv(csv_file)
         if user is not None:
-            marks_obj = user['marks']
             current_date = datetime.today().strftime('%Y/%m/%d')
             update = {
                 "$push": {
                     f"marks.marks": {'$each': marks_list}
                 },
                 "$set": {
-                    "marks.last_update": current_date
+                    "marks.last_update": current_date,
+                    "marks.login": login,
+                    "marks.password": password
                 }
             }
             db.users_collection.update_one(user, update)
         os.remove(csv_file)
-
+        return True
     except Exception as e:
         print(e)
     finally:
         driver.close()
         driver.quit()
-        return True
 
 
 def parse_csv(input_csv):
@@ -132,7 +133,6 @@ def parse_csv(input_csv):
         csvreader = csv.reader(csvfile)
         subjects_data = [row[2] for row in csvreader]
         subjects_data = subjects_data[1:]
-        # print(subjects_data)
 
     with open(input_csv, 'r', newline='') as csvfile:
         csvreader = csv.reader(csvfile)
