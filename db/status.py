@@ -53,20 +53,23 @@ def my_marks(telegram_id, result_queue):
         marks_obj = user['marks']
         marks_list = marks_obj["marks"]
         last_update = marks_obj["last_update"]
-        days_difference = (datetime.now() - datetime.strptime(last_update, "%Y/%m/%d")).days
-        if days_difference >= 3:
-            result_queue.put(None)
-        else:
-            text = f"📚️Оцінки: \n" \
-                   f"⏰ {last_update}\n"
-            for subject_data in marks_list:
-                subject = subject_data[0].replace('ІК "Природничі науки. ', "")
-                subject = subject.replace('"', "")
-                marks = subject_data[1].replace('(', "")
-                marks = marks.replace(')', "")
-                marks = marks.replace('.', "")
-                text = text + f"*{subject}*\:\n_{marks}_\n\n"
-            result_queue.put(text)
+
+        if last_update is not None:
+            days_difference = (datetime.now() - datetime.strptime(last_update, "%Y/%m/%d")).days
+            print(days_difference)
+            if days_difference >= 3:
+                result_queue.put(None)
+            else:
+                text = f"📚️Оцінки: \n" \
+                       f"⏰ {last_update}\n"
+                for subject_data in marks_list:
+                    subject = subject_data[0].replace('ІК "Природничі науки. ', "")
+                    subject = subject.replace('"', "")
+                    marks = subject_data[1].replace('(', "")
+                    marks = marks.replace(')', "")
+                    marks = marks.replace('.', "")
+                    text = text + f"*{subject}*\:\n_{marks}_\n\n"
+                result_queue.put(text)
 
 
 def visiting(telegram_id, telegram_user, result_queue):
