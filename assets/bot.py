@@ -119,7 +119,7 @@ class Bot(Buttons):
         user_login = update.message.text
         context.user_data['login'] = user_login
 
-        if login.verification_user_from_login(context.effective_chat.id, context.user_data['login']):
+        if login.verification_user_from_login(update.effective_chat.id, context.user_data['login']):
             markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
