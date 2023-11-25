@@ -102,7 +102,7 @@ class Bot(Buttons):
             await context.bot.send_message(chat_id=update.effective_chat.id,
                                            text=ui_text["answer"].answer_login_confirmed, reply_markup=markup, parse_mode="MarkdownV2")
         else:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=ui_text["answer"].error_login_not_confirmed)
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=ui_text["error"].error_login_not_confirmed)
 
     @staticmethod
     async def registration_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -131,7 +131,8 @@ class Bot(Buttons):
             markup = telegram.ReplyKeyboardMarkup(Buttons.loginBTN, resize_keyboard=True)
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text=ui_text["answer"].error_login_not_confirmed,
+                text=ui_text["error"].error_login_not_confirmed,
+                parse_mode="MarkdownV2",
                 reply_markup=markup,
 
             )
@@ -367,7 +368,7 @@ class Bot(Buttons):
         else:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text=ui_text["answer"].error_unknown,
+                text=ui_text["error"].error_unknown,
                 reply_markup=markup,
                 parse_mode="MarkdownV2"
             )

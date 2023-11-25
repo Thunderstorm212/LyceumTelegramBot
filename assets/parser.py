@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 from time import sleep
 from datetime import datetime
 import db
@@ -85,8 +86,8 @@ def open_driver(login, password, user=None):
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
-
-        driver = webdriver.Chrome(options=options)
+        s = Service("utils/chromedriver/chromedriver")
+        driver = webdriver.Chrome(options=options, service=s)
 
         driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
             'source': '''
