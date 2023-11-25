@@ -132,7 +132,6 @@ class Bot(Buttons):
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=ui_text["answer"].error_login_not_confirmed,
-                parse_mode="MarkdownV2",
                 reply_markup=markup,
 
             )
