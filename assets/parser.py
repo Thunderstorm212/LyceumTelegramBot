@@ -1,3 +1,4 @@
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from time import sleep
@@ -7,6 +8,10 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import csv
 import os
+from googleapiclient import discovery
+import conf
+from oauth2client.service_account import ServiceAccountCredentials
+import httplib2
 
 
 class Elements:
@@ -18,11 +23,43 @@ class Elements:
         "date_to": "classselectform-date_to"
     }
     class_name = {
-        "btn_submit": "form-submit-btn"
+        "btn_submit": "form-submit-btn",
+        "btn_registration": "lp-btn__login"
     }
 
 
 driver = None
+
+
+def sheet_connect(group):
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        conf.CREDENTIALS_FILE,
+        [conf.drive_api,
+         conf.sheets_api]
+    )
+    http_auth = credentials.authorize(httplib2.Http())
+    service = discovery.build('sheets', 'v4', http=http_auth)
+
+    values = service.spreadsheets().values().get(
+            range=f"Schedule{group}!A1:J26",
+            spreadsheetId=conf.spreadsheet_id,
+            majorDimension='ROWS'
+        ).execute()
+
+    values = values.get('values')
+
+    if not values:
+        print('No data found.')
+    else:
+        # Save the data to a CSV file
+        with open(f'lib/Schedules/Schedule{group}.csv', 'w') as csv_file:
+            for row in values:
+                csv_file.write(','.join(row) + '\n')
+        print(f'Data downloaded and saved to output.csv. {time.ctime(os.path.getctime(f"lib/Schedules/Schedule{group}.csv"))}')
+    print(values)
+
+
+# sheet_connect(group="10А")
 
 
 def open_driver(login, password, user=None):
@@ -31,6 +68,8 @@ def open_driver(login, password, user=None):
 
     def login_client():
         driver.get("https://nz.ua")
+        registration = driver.find_element(by=By.CLASS_NAME, value=Elements.class_name["btn_registration"])
+        registration.click()
         input_login = driver.find_element(by=By.ID, value=Elements.id["input_login"])
         input_password = driver.find_element(by=By.ID, value=Elements.id["input_password"])
         submit_btn = driver.find_element(by=By.CLASS_NAME, value=Elements.class_name["btn_submit"])

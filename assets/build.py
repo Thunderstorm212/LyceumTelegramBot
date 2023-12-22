@@ -31,6 +31,17 @@ def build():
         app.add_handler(MessageHandler(filters.Regex(ui_text["btn"].btn_arrived), Bot.btn_arrived))
         app.add_handler(MessageHandler(filters.Regex(ui_text["btn"].btn_marks_status), Bot.btn_marks_status))
         app.add_handler(MessageHandler(filters.Regex(ui_text["btn"].btn_visiting_status), Bot.btn_visiting_status))
+        app.add_handler(MessageHandler(filters.Regex(ui_text["btn"].btn_group_leader), Bot.btn_group_leader))
+        app.add_handler(ConversationHandler(
+                entry_points=[
+                    MessageHandler(filters.Regex(ui_text["btn"].btn_advertisement), Bot.btn_advertisement)
+                ],
+                states={
+                    1: [MessageHandler(filters.TEXT, Bot.btn_advertisement_message)],
+                },
+                fallbacks=[MessageHandler(filters.COMMAND, Bot.cancel)]
+            ),)
+        app.add_handler(MessageHandler(filters.Regex(ui_text["btn"].btn_homework), Bot.btn_homework))
 
         app.add_handler(MessageHandler(filters.Regex(ui_text["btn"].btn_menu), Bot.btn_menu))
 

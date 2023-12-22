@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "liceumtelegrambot",
+  "private_key_id": "118a93431fd17f62dc139784ab1d1c37dfb74296",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDfPcq+z1IdA6cD\n7GinBDufrtl1K6IEwcn0jy9tDS9Qejn1CH35l3COxZBK8id8QQzjmxzVqa6Txn9Q\nAPCbDO3fFMiOe50zIWNm/UOKwTlDUWkvwDWd4vpbTd2/fpPSbL0tPZ8Zn7cKLj+B\nxhv343Q0AJ+qQgQqeUyDJYcxlbfW+VwGHQDHU8l7numKyyYvqD0swZqTzmNsdpVT\nPtroyLp66+RCM9ZBcMN3MmZAvlojfzNMx3mqAAZjKfevHoGEviQHAUyxZSHMUNH+\nNbTFED9HIChXRjkRNborgErQMKnH3/ZsyHPFYdOcs67R2nNi8XZl5lQs8wmnyi+4\nOQOVRaCLAgMBAAECggEASCv+dXSqK9Yn8yVFaiV8rzHEfNR340jRZT67Suq1zrNN\nNHIj5AK5MXceoJQr/sg7BgR6LHtYhM7qDu/W2ZGy/2mFM0c0ebjEHaIoaV3xiNlz\ng6wEyX/9h3IjjAq8eI2OFWe0HYEcmG5+OpLVLO18fmlrNQx1s1OW0FlcHUQ1dIp7\nyjShlp6h7mnYIui4ye/NIcYG/5JkjnquTRtG+By0aQmgKQV7daIHusLOVo6eQUP6\n9Q9lUyC8nFQByejBorH6cE6UfoDqRPNWSI7LxjmC/rPL5KTLplkz0v5eW/K1+0nt\nZ2Rphmn7xBH0viMIR45ctrf67HT9N1UlQ3i4fD3dLQKBgQDvZ0/n8YK8TIM90O6/\n8PTTu7C1jL2QLuCYwk7/zMGtAXI2Lyzsj7P+95jUj5Zx03pstDINi2p4ULtPkdYJ\nYT9UrKKqEitkbZmJXPnaze3OnrTOWsk8oknbk3P70UrhNfUNA8gMzG/hqjJWlGUw\nRVfuB6EJbekjdhqEsPkG3LOq5wKBgQDut6ZklYKnKHQK1MO5boK0w39hcmo0YVE6\nKOYXnUqFhjW+QdbcUUUiJzWPbZ1dWh92qcLII+ZZMRWZuydbPNfgDcJ+h75+c5TQ\nthl3ZTKOO8Zw6F5RH99tqumoT/002SIv81ZiC3rNcGc5cL7PWFyaWiqR0Rv3dMtr\nrxPQUWFsvQKBgCQA5YN8Tq0C1Ln3MfCrzCYLlAe5osiMRDq0/ix6HqZmEUcU0SzC\nb89obROKhJWZuE+gyeY/kUOG4KSWyhmfBmc1j0EEeoIf+XcvBGRjk9/+/jIKdTkp\nLvJWupqkXx5/ftr2Np+2Hx1Q+0EKEC2yQAcMHqvMW8N5f4N1Gf5uMpcBAoGBAMgK\nn+Y0H9uCG9Qjvax7fg6KsQjw/yzLzGynb0Gkrpk8AXdg5vOTKxLWtpxtp+xdpHYl\nBjP/WX2uk0JTQkTDtMdt4Gl1yV1f7/oCT07tP7NPRhjBsJ/czLey/MDt3urVdj+m\nc+IPaqYTpnzNDSjmDBvQqVGuYPg6KGkhusHcIH8lAoGAJhetiYxfpdruBJppuIVK\nDi6H39bkRmVifqMxLfoke+XzPPfVXwOTFaUwdWQghxp9MeYDZRuiGuRY3eQu1i0W\nsDWs+saJTQIkU7Dmshxzu6+FavA29d+c5TliJAaRJsS8WfwpDM4Qc4CV8bPec3N7\nwOCV+jxkbwVMom7FXLdEUZA=\n-----END PRIVATE KEY-----\n",
+  "client_email": "sheets@liceumtelegrambot.iam.gserviceaccount.com",
+  "client_id": "115364120589326585612",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sheets%40liceumtelegrambot.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

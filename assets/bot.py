@@ -53,6 +53,12 @@ class Buttons:
             telegram.KeyboardButton(ui_text["btn"].btn_back),
         ]
     ]
+    group_leaderBTN = [
+        [
+            telegram.KeyboardButton(ui_text["btn"].btn_advertisement),
+            telegram.KeyboardButton(ui_text["btn"].btn_homework),
+        ],
+    ]
 
 
 class Bot(Buttons):
@@ -102,7 +108,7 @@ class Bot(Buttons):
             await context.bot.send_message(chat_id=update.effective_chat.id,
                                            text=ui_text["answer"].answer_login_confirmed, reply_markup=markup, parse_mode="MarkdownV2")
         else:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=ui_text["answer"].error_login_not_confirmed)
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=ui_text["error"].error_login_not_confirmed)
 
     @staticmethod
     async def registration_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -131,7 +137,7 @@ class Bot(Buttons):
             markup = telegram.ReplyKeyboardMarkup(Buttons.loginBTN, resize_keyboard=True)
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text=ui_text["answer"].error_login_not_confirmed,
+                text=ui_text["error"].error_login_not_confirmed,
                 reply_markup=markup,
 
             )
@@ -151,10 +157,12 @@ class Bot(Buttons):
 
     @staticmethod
     async def btn_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        markup = telegram.ReplyKeyboardMarkup(Buttons.menuBTN, resize_keyboard=True)
 
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=ui_text["answer"].answer_develop,
+            text=ui_text["btn"].btn_menu,
+            reply_markup=markup
         )
 
     @staticmethod
@@ -183,6 +191,49 @@ class Bot(Buttons):
             text=ui_text["btn"].btn_stats,
             reply_markup=markup
         )
+
+    @staticmethod
+    async def btn_group_leader(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        markup = telegram.ReplyKeyboardMarkup(Buttons.group_leaderBTN, resize_keyboard=True)
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=ui_text["btn"].btn_group_leader,
+            reply_markup=markup
+        )
+
+    @staticmethod
+    async def btn_advertisement(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        markup_remove = telegram.ReplyKeyboardRemove()
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=ui_text["answer"].answer_input_messaage,
+            reply_markup=markup_remove
+        )
+        return 1
+
+    @staticmethod
+    async def btn_advertisement_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        markup = telegram.ReplyKeyboardMarkup(Buttons.homeBTN, resize_keyboard=True)
+
+        advertisement_message = update.message.text
+
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Повідомлення: " + advertisement_message + "\nВідправленно.",
+            reply_markup=markup
+        )
+
+        return ConversationHandler.END
+
+    @staticmethod
+    async def btn_homework(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        markup_remove = telegram.ReplyKeyboardRemove()
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=ui_text["answer"].answer_input_messaage,
+            reply_markup=markup_remove
+        )
+
 
     @staticmethod
     async def btn_intheway(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -404,8 +455,21 @@ class Bot(Buttons):
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=ui_text["answer"].answer_wait,
+            )
+
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="Тиждень: 1\n"
+                     "Середа\n\n"
+                     "1. Інформатика, 1гр\n"
+                     "    Англійська , 2гр.\n\n"
+                     "2. Англійська , 1гр.\n"
+                     "    Інформатика, 2гр\n\n"
+                     "3. СК Укрмова\n\n"
+                     "4. Математика\n",
                 reply_markup=markup
             )
+
             return ConversationHandler.END
         else:
             await context.bot.send_message(
